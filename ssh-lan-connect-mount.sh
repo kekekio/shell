@@ -3,7 +3,7 @@ IP_VAR=$(nmap 10.42.0.0/24 --exclude 10.42.0.1 |
 	grep -oh -E "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)" | 
 	head -n 1); 
 if [ -z "$IP_VAR" ]; then 
-	echo "Nmap didn't found any devices: IP_VAR is NULL" 
+	echo "Nmap hasn't found any devices: IP_VAR is NULL" 
 	exit 1
 fi
 MOUNT_POINT=$2
