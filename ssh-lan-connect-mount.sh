@@ -23,5 +23,6 @@ done
 MOUNT_POINT=$2
 PASSWORD=$1
 echo "Try to connect to $IP_VAR"
-echo $PASSWORD | sshfs -o password_stdin root@$IP_VAR:/ $MOUNT_POINT
-sshpass -p $PASSWORD ssh root@$IP_VAR
+ssh-keygen -R $IP_VAR || true # "|| true" - is ignoring errors
+echo $PASSWORD | sshfs -o password_stdin -oStrictHostKeyChecking=accept-new root@$IP_VAR:/ $MOUNT_POINT
+sshpass -p $PASSWORD ssh -o StrictHostKeyChecking=accept-new root@$IP_VAR
