@@ -2,8 +2,8 @@
 #Try to connect direct connected ssh-server, that was assigned with dhcp to 10.42.0./24, and mount it using sshfs to $2
 # подключение по ssh к подключенному напрямую устройству, и маунт его в $2
 # \args: 
-# 	$1 - password
-# 	$2 - mountpoint
+# 	\param[in] $1 - password
+# 	\param[in] $2 - mountpoint
 
 PASSWORD=$1
 MOUNT_POINT=$2

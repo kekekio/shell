@@ -2,8 +2,8 @@
 #
 # \brief ucompress all filetypes
 # разархивировать все типы архивов
-# \args: 
-#       $1 - filename
+# args: 
+#       \param[in] $1 - filename
 
 extract () {
    if [ -f $1 ] ; then
