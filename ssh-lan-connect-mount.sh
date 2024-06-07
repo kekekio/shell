@@ -4,34 +4,37 @@
 # \args: 
 # 	\param[in] $1 - password
 # 	\param[in] $2 - mountpoint
+# 	\param[in] $3 - ip
 
-PASSWORD=$1
-MOUNT_POINT=$2
+PASSWORD="$1"
+MOUNT_POINT="$2"
 IP_VAR="$3"
 umount -l $MOUNT_POINT || true # "|| true" - is ignoring errors
 #
-#do-while loop
+# do-while loop BEGIN
 while :;
+	# break if ip is setted
 	if [[ ! -z "$IP_VAR" ]]; then
+		echo "Try to connect to $IP_VAR"
 		break
 	fi
 do 
-IP_VAR=$(nmap 10.42.0.0/24 --exclude 10.42.0.1 | 
-	grep "Nmap scan report for" | 
-	grep -oh -E "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)" | 
-	head -n 1); 
+	# nmap ip
+	IP_VAR=$(nmap 10.42.0.0/24 --exclude 10.42.0.1 | 
+		grep "Nmap scan report for" | 
+		grep -oh -E "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)" | 
+		head -n 1); 
 
-
+# do-while loop WHILE
 	if [ -z "$IP_VAR" ]; then
 		echo "Nmap hasn't found any devices: IP_VAR is NULL" 
 		echo "Continue" 
 	else
 		break
 	fi
-	
+# do-while loop END
 done
 
-echo "Try to connect to $IP_VAR"
 ssh-keygen -R $IP_VAR || true # "|| true" - is ignoring errors
 
 echo $PASSWORD | sshfs -o allow_other -o password_stdin -oStrictHostKeyChecking=accept-new root@$IP_VAR:/ $MOUNT_POINT

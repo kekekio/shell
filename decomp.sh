@@ -5,7 +5,7 @@
 # args: 
 #       \param[in] $1 - filename
 
-extract () {
+decomp () {
    if [ -f $1 ] ; then
        case $1 in
            *.tar.zst)	tar	--zstd -xvf 	$1 ;;
@@ -31,4 +31,4 @@ extract () {
        echo "'$1' is not a valid file!"
    fi
  }
-extract $1
+decomp $1
