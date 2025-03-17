@@ -1,0 +1,5 @@
+# \brief for ssh-local-mount
+# dnf install sshpass
+
+# \brief for getting env vars
+# dnf install jq

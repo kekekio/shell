@@ -1,0 +1,6 @@
+#!/bin/bash
+
+SOURCE_FILE=$1
+RESULT_FILE=$(basename "$SOURCE_FILE" | cut -d'.' -f 1).dtb
+
+dtc -I dts -O dtb -o $RESULT_FILE $SOURCE_FILE

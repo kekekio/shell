@@ -1,0 +1,16 @@
+#!/bin/bash
+# scan lan
+# \if english \brief scan LAN for 1 connected device (local dhcp 10.42.0.0/24) 
+#
+# usage: "decomp <filename>" 
+#       \param[in] $1 - filename
+# \endif
+#
+# \if russian
+# \brief просканировать LAN на 1 подключенное устройство (local dhcp 10.42.0.0/24)
+# \endif
+IP_VAR=$(nmap 10.42.0.0/24 --exclude 10.42.0.1 | 
+	grep "Nmap scan report for" | 
+	grep -oh -E "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)" | 
+	head -n 1); 
+echo $IP_VAR

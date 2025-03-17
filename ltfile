@@ -1,0 +1,7 @@
+#!/bin/bash
+# LAst modified FILE
+# \brief get the last modified file in the folder
+#
+# Вывести последний изменённый файл
+
+FILE_NAME="$(ls -t | head -n 1)"
