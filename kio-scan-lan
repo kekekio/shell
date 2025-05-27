@@ -3,14 +3,17 @@
 # \if english \brief scan LAN for 1 connected device (local dhcp 10.42.0.0/24) 
 #
 # usage: "decomp <filename>" 
-#       \param[in] $1 - filename
+#       \param[in] $1 - name of interface (default enp92s0)
 # \endif
 #
 # \if russian
 # \brief просканировать LAN на 1 подключенное устройство (local dhcp 10.42.0.0/24)
 # \endif
-IP_VAR=$(nmap 10.42.0.0/24 --exclude 10.42.0.1 | 
+IF_NAME=${1:-enp92s0}
+IF_NETWORK=$(ip -o -f inet addr show $IF_NAME | awk 'N=4 {print $N}')
+IF_IP=$(cut -d/ -f1 <<< "$IF_NETWORK")
+IP_SCANNED_LIST=$(nmap $IF_NETWORK --exclude $IF_IP | 
 	grep "Nmap scan report for" | 
 	grep -oh -E "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)" | 
 	head -n 1); 
-echo $IP_VAR
+echo $IP_SCANNED_LIST
