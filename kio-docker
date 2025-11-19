@@ -1,0 +1,83 @@
+#!/bin/bash
+
+# Path to the JSON configuration file
+CONFIG_PATH="$HOME/.config/kio_setup/private/docker-containers.json"
+
+BIND_PATH=""
+ENTER=""
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -e|--enter)
+            ENTER="true"
+            shift
+            ;;
+        -b|--bind)
+            BIND_PATH="$2"
+            shift 2
+            ;;
+        *)
+            ALIAS="$1"
+            shift
+            ;;
+    esac
+done
+
+if [ -z "$ALIAS" ]; then
+    echo "Usage: $0 [-b <host_path>:<container_path>] [-e] <container-alias>"
+    exit 1
+fi
+
+# Check if JSON exists
+if [ ! -f "$CONFIG_PATH" ]; then
+    echo "Config not found: $CONFIG_PATH"
+    exit 1
+fi
+
+# Find container key by alias
+CONTAINER_NAME=$(jq -r --arg alias "$ALIAS" '
+  .containers 
+  | to_entries 
+  | map(select(.value.names | index($alias))) 
+  | .[0].key
+' "$CONFIG_PATH")
+
+if [ -z "$CONTAINER_NAME" ] || [ "$CONTAINER_NAME" = "null" ]; then
+    echo "No container found for alias: $ALIAS"
+    exit 1
+fi
+
+# Check if Docker container exists
+docker inspect "$CONTAINER_NAME" >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+    echo "Docker container does not exist: $CONTAINER_NAME"
+    exit 1
+fi
+
+# ----------------------------
+# Enter mode: connect to existing container
+# ----------------------------
+if [ -n "$ENTER" ]; then
+    echo "Connecting to container: $CONTAINER_NAME"
+    
+    # Start the container if not running
+    RUNNING=$(docker inspect -f '{{.State.Running}}' "$CONTAINER_NAME")
+    if [ "$RUNNING" != "true" ]; then
+        echo "Container $CONTAINER_NAME is not running. Starting..."
+        docker start "$CONTAINER_NAME" >/dev/null
+    fi
+
+    # Enter as user kio
+    docker exec -it "$CONTAINER_NAME" bash 2>/dev/null || \
+        docker exec -it "$CONTAINER_NAME" sh
+    docker stop "$CONTAINER_NAME" >/dev/null
+    exit $?
+fi
+
+# ----------------------------
+# Bind mode: create temporary container with bind
+# ----------------------------
+if [ -n "$BIND_PATH" ]; then
+    docker run --rm -it -v "$BIND_PATH" --name "${ALIAS}_temp" -u $(id -u):$(id -g) "$CONTAINER_NAME" bash
+else
+    docker run --rm -it --name "${ALIAS}_temp" -u $(id -u):$(id -g) "$CONTAINER_NAME" bash
+fi
